@@ -9,7 +9,6 @@ class Dataset(val table: Array[Array[String]], val metaData: Array[Array[String]
   var merged : Option[Array[Array[String]]] = None
 
   def getFramesToMerge(metaData: Array[Array[String]]): Map[String, Array[Array[String]]] = {
-    val studyEventDefinition
     val examFrames = metaData.zipWithIndex.map{ case (field, index) =>
       if(field(0).startsWith("Study Event Definition ")) { // begin of exam section
         var a = index+1
@@ -57,6 +56,8 @@ class Dataset(val table: Array[Array[String]], val metaData: Array[Array[String]
     })
     merged = Option(buf.map(_.toArray))
   }
+
+  def getMerged = merged
 
   override def toString = {
     val outstr = merged.get.zipWithIndex.map{ case(x, idx) => patients(idx).mkString("\t") + x.mkString("\t")}.mkString("\n")

@@ -44,7 +44,7 @@ class DatasetTest extends FlatSpec with Matchers {
 
   it should "merge frames from one exam by value name" in {
     val dataset = new Dataset(pat, src)
-    val result = dataset.getMergedTable
-    result(0)(0)
+    dataset.processMerge
+    val merged = dataset.getMerged
   }
 }
