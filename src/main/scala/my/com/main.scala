@@ -1,3 +1,5 @@
+package my.com
+
 import java.io.{File, PrintWriter}
 
 import scala.io.Source

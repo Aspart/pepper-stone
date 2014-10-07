@@ -1,3 +1,5 @@
+package my.com
+
 import scala.collection.mutable.ArrayBuffer
 
 /**

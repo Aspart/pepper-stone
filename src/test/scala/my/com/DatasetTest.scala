@@ -1,6 +1,6 @@
-import java.text.ParseException
+package my.com
 
-import org.scalatest.{Matchers, FlatSpec}
+import org.scalatest.{FlatSpec, Matchers}
 
 /**
  * Created by roman on 28/09/14.
@@ -21,7 +21,7 @@ class DatasetTest extends FlatSpec with Matchers {
   src(3) = Array("A3",                 "",         "B31",         "B32",        "C3",        "D3")
   src(4) = Array("A4",                 "",         "",         "B4",        "C4",        "D4")
 
-  "Dataset" should "split data to exams" in {
+  "my.com.Dataset" should "split data to exams" in {
     val exams = Map("E1" -> Array(0,1), "E2" -> Array(2, 3,4), "E3" -> Array(5))
     val dataset = new Dataset(pat, src)
     val res = dataset.getExamsArray(src)

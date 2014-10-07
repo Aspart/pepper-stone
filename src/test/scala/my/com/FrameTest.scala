@@ -1,4 +1,6 @@
-import org.scalatest.{Matchers, FlatSpec}
+package my.com
+
+import org.scalatest.{FlatSpec, Matchers}
 
 /**
  * Created by roman on 28/09/14.
@@ -22,7 +24,7 @@ class FrameTest extends FlatSpec with Matchers {
   val frame1 = new Frame("C1", data1)
   val frame2 = new Frame("C2", data2)
 
-  "Frame" should "merge data from two frames into one" in {
+  "my.com.Frame" should "merge data from two frames into one" in {
     val merged = frame1 + frame2
     merged.data(0)(0) should be ("A1_E1_C2")
     merged.data(0)(5) should be ("A5_E1_C2")

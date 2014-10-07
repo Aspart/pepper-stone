@@ -1,6 +1,8 @@
+package my.com
+
 import java.text.ParseException
 
-import org.scalatest.{Matchers, FlatSpec}
+import org.scalatest.{FlatSpec, Matchers}
 
 /**
  * Created by roman on 28/09/14.

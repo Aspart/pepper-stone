@@ -1,3 +1,5 @@
+package my.com
+
 /**
  * Created by roman on 27/09/14.
  */
