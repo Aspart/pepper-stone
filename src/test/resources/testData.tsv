@@ -1,0 +1,20 @@
+Dataset Name:		Test
+Dataset Description:	Test
+Item Status:
+Study Name:	pepper-stone-test
+Protocol ID:	PST-01
+Date:	2014-Okt-5
+Subjects:	5
+Study Event Definitions	2
+Study Event Definition 1	Screening	E1
+CRF1	01_Frame number one - v.1	C1
+CRF2	01_Frame number one - v.2	C2
+Study Event Definition 2	Visit 1	E2
+CRF1	01__Frame number one - v.1	C1
+
+ID	SB	A1_E1_C1	A2_E1_C1	A1_E1_C2	A2_E1_C2	A1_E2_C1	
+id1	sb1	a1	b1			c1	
+id2	sb2	a2	b2			c2	
+id3	sb3			a3	b3	c3	
+id4	sb4	a4	b4			c4	
+id5	sb5			a5	b5	c5	

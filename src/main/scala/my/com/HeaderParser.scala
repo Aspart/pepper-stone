@@ -4,11 +4,14 @@ import java.text.ParseException
 import java.util.regex.Pattern
 
 /**
- * Created by roman on 25/09/14.
+ * Parse column header. Format: VALUE_NAME_E##_C##_##
+ * If last two digits exist - value name is VALUE_NAME_##, else VALUE_NAME
+ * E## for event
+ * C## for frame
  */
 class HeaderParser(val src: String) {
 
-  val (variableName, exam, frame) = getHeaderFields(src)
+  val (variableName, event, frame) = getHeaderFields(src)
 
   def getHeaderFields(src: String): (String, String, String) = {
     val m = Pattern.compile("^(.*)_(E\\d*)_(C\\d*)(?:_(\\d*))*$").matcher(src)
@@ -19,14 +22,14 @@ class HeaderParser(val src: String) {
       throw new ParseException("Wrong header group count: " + m.groupCount.toString, -1)
     }
     val variableName = if(m.group(4) != null){ m.group(1) + "_" + m.group(4) } else { m.group(1) }
-    val exam = m.group(2)
+    val event = m.group(2)
     val frame = m.group(3)
-    (variableName, exam, frame)
+    (variableName, event, frame)
   }
 
 
   def isSameTitle(b:HeaderParser): Boolean = {
-    if(variableName == b.variableName && exam == b.exam)
+    if(variableName == b.variableName && event == b.event)
       true
     else
       false
