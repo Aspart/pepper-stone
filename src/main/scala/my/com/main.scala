@@ -13,9 +13,9 @@ object main {
     val table = Source.fromFile(args(0)).getLines().filter(!_.isEmpty).map(_.split("\t", -1)).toArray
     val meta = getMeta(table)
     val data = getData(table)
-    val dataset = new Dataset(data, meta)
-    dataset.getMerged
-    makeFile(args(1), dataset.toString)
+    val dataset = new Dataset(meta, data)
+    val merged = dataset.getMerged
+    makeFile(args(1), merged.getRows.mkString("\n"))
   }
 
   def getMeta(table: Array[Array[String]]): Array[Array[String]] = {

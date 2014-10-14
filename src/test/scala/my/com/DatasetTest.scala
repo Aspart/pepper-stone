@@ -14,7 +14,7 @@ class DatasetTest extends FlatSpec with Matchers {
   val data = source.filter(_.length > 3)
 
   val dataset = new Dataset(meta, data)
-  
+
   it should "merge frames from one event by value name" in {
     val merged = dataset.getMerged
     val table = merged.getRows
