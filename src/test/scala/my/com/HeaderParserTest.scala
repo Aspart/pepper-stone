@@ -14,11 +14,11 @@ class HeaderParserTest extends FlatSpec with Matchers {
     val header2 = new HeaderParser("BDATE_STRANGE_E8_C22")
 
     header1.variableName should be ("BDATE_STRANGE_3")
-    header1.exam should be ("E8")
+    header1.event should be ("E8")
     header1.frame should be ("C22")
 
     header2.variableName should be ("BDATE_STRANGE")
-    header2.exam should be ("E8")
+    header2.event should be ("E8")
     header2.frame should be ("C22")
   }
 

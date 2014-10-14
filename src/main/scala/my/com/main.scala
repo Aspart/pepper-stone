@@ -14,7 +14,7 @@ object main {
     val meta = getMeta(table)
     val data = getData(table)
     val dataset = new Dataset(data, meta)
-    dataset.processMerge
+    dataset.getMerged
     makeFile(args(1), dataset.toString)
   }
 
