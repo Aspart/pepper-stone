@@ -13,8 +13,6 @@ class EventTest extends FlatSpec with Matchers {
   val meta = source.filter(_.length <= 3)
   val data = source.filter(_.length > 3)
 
-  val dataset = new Event("E1", data)
-
-  it should "merge frames from one event by value name" in {
+  it should "split data to frames" in {
   }
 }
