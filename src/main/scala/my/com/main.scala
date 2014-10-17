@@ -42,7 +42,14 @@ object main {
     val data = getData(table)
     val dataset = new Dataset(meta, data)
     val merged = dataset.getMerged
-    makeFile(config.out, merged.getRows.mkString("\n"))
+    val posOfExt = """.\w+$""".r replaceFirstIn config.out ("")
+    if(!config.split)
+      makeFile(config.out, merged.getRows.mkString("\n"))
+    else {
+      val eventsForFile = merged.data.map{case(eventName, eventData) => eventName ->
+        eventData.getRows.zipWithIndex.map{case(row, idx) => merged.patients(idx).mkString("\t") + "\t" + row}.mkString("\n")}
+      eventsForFile.foreach{case(eventName, eventRows) => makeFile(config.out + "_" + eventName, eventRows)}
+    }
   }
 
   def main(args: Array[String]): Unit = {
@@ -61,8 +68,7 @@ object main {
 
   def makeFile(fileName: String, data: String) = {
     val writer = new PrintWriter(new File(fileName))
-    val res = this.toString
-    writer.write(res)
+    writer.write(data)
     writer.close()
   }
 }
