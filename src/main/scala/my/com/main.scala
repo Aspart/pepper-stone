@@ -47,7 +47,7 @@ object main {
     else {
       val eventsForFile = merged.data.map{case(eventName, eventData) => eventName ->
         eventData.getRows.zipWithIndex.map{case(row, idx) => merged.patients(idx).mkString("\t") + "\t" + row}.mkString("\n")}
-      eventsForFile.foreach{case(eventName, eventRows) => makeFile(config.out.split('.').init :+ "___" :+ config.out.split('.').last mkString ".", eventRows)}
+      eventsForFile.foreach{case(eventName, eventRows) => makeFile(config.out.split('.').init :+ eventName :+ config.out.split('.').last mkString ".", eventRows)}
     }
   }
 
