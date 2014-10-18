@@ -42,7 +42,6 @@ object main {
     val data = getData(table)
     val dataset = new Dataset(meta, data)
     val merged = dataset.getMerged
-    val posOfExt = """.\w+$""".r replaceFirstIn config.out ("")
     if(!config.split)
       makeFile(config.out, merged.getRows.mkString("\n"))
     else {
