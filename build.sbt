@@ -20,4 +20,6 @@ mainClass in (Compile, run) := Some("my.com.main")
 
 mainClass in (Compile, packageBin) := Some("my.com.main")
 
+mainClass in assembly := Some("my.com.main")
+
 assemblySettings

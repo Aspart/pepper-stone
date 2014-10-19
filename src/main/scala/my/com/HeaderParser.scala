@@ -35,5 +35,5 @@ class HeaderParser(val src: String) {
       false
   }
 
-  override def toString(): String = src
+  override def toString: String = src
 }
