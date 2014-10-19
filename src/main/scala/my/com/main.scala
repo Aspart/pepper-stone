@@ -39,6 +39,10 @@ object main {
   def process(config: Config) = {
     val table = Source.fromFile(config.in).getLines().filter(!_.isEmpty).map(_.split("\t", -1)).toArray
     val meta = getMeta(table)
+    val datasetHeaderBuilder = new DatasetHeaderBuilder
+    datasetHeaderBuilder.parseHeader(meta)
+    val header = datasetHeaderBuilder.getHeader
+    val evCount = header.events.size
     val data = getData(table)
     val dataset = new Dataset(meta, data)
     val merged = dataset.getMerged
