@@ -41,7 +41,7 @@ class DatasetHeaderBuilder {
     val eventMeta = meta.map(_.mkString("\t")).filter(!_.contains(":")).map(_.split("\t")).drop(1)
     val result = eventMeta.zipWithIndex.map{ case (row, index) =>
       if(row(0).startsWith("Study Event Definition ")) { // begin of event section
-      var a = index+1
+        var a = index+1
         val buf = new ArrayBuffer[FrameHeader]
         while(a != eventMeta.length && !eventMeta(a)(0).startsWith("Study Event Definition")) { // parse all frames
           buf += new FrameHeader(eventMeta(a))
@@ -51,7 +51,7 @@ class DatasetHeaderBuilder {
       } else {
         null
       }
-    }
+    }.filter(_ != null)
     setEvents(result)
   }
 }

@@ -14,4 +14,6 @@ class EventHeader(val name: String, val description: String, val key: String, va
   def this(header: Array[String], frames: Array[FrameHeader]) = {
     this(header(0), header(1), header(2), frames)
   }
+
+  override def toString = List(name, description, key).mkString("\t")
 }

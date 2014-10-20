@@ -32,7 +32,7 @@ object main {
     parser.parse(args, Config()) map { config =>
       process(config)
     } getOrElse {
-      // arguments are bad, error message will have been displayed
+      parser.showUsageAsError
     }
   }
 
@@ -42,7 +42,7 @@ object main {
     val datasetHeaderBuilder = new DatasetHeaderBuilder
     datasetHeaderBuilder.parseHeader(meta)
     val header = datasetHeaderBuilder.getHeader
-    val evCount = header.events.size
+    val str = header.toString
     val data = getData(table)
     val dataset = new Dataset(meta, data)
     val merged = dataset.getMerged
