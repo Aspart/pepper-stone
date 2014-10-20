@@ -13,7 +13,10 @@ class DatasetTest extends FlatSpec with Matchers {
   val meta = source.filter(_.length <= 3)
   val data = source.filter(_.length > 3)
 
-  val dataset = new Dataset(meta, data)
+  val headerBuilder = new DatasetHeaderBuilder
+  headerBuilder.parseHeader(meta)
+  val header = headerBuilder.getHeader
+  val dataset = new Dataset(header, data)
   it should "load data properly" in {
     val rows = dataset.data("E2").data("C1").getRows
     rows(1) should be ("c1")

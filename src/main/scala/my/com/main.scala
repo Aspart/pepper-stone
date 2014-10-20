@@ -44,7 +44,7 @@ object main {
     val header = datasetHeaderBuilder.getHeader
     val str = header.toString
     val data = getData(table)
-    val dataset = new Dataset(meta, data)
+    val dataset = new Dataset(header, data)
     val merged = dataset.getMerged
     if(!config.split)
       makeFile(config.out, merged.getRows.mkString("\n"))
