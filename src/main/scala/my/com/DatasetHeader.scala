@@ -7,6 +7,21 @@ class DatasetHeader(val name: String, val description: String, val status: Strin
                     val study: String, val id: String, val date: String,
                     val subjects: Int, val events: Array[EventHeader]) {
 
+  def getFramesToMerge: Map[String, Array[Array[String]]] = {
+    val result = events.map { e =>
+      e.key -> e.frames.map { frame =>
+        val valName = frame.description.split(" - ")(0)
+        val frameNames = e.frames.map(x => x.description.split(" - ")(0) -> x.key)
+        frameNames.filter(_._1 == valName).map(_._2).toList
+      }.filter(_.size > 1).distinct.map(_.toArray)
+    }.filter(_._2.nonEmpty).toMap
+    result
+  }
+
+  def reduceByMerged(mergedFrames: Map[String, Array[Array[String]]]) = {
+    // TODO: change header according to information about merge
+  }
+
   override def toString = {
     List("Dataset Name:\t" + name,
     "Dataset Description:\t" + description,

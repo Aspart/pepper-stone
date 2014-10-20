@@ -5,7 +5,7 @@ import scala.collection.mutable.ArrayBuffer
 /**
  * Created by roman on 28/09/14.
  */
-class Dataset(val metaData: Array[Array[String]], val data: Map[String, Event], val patients: Array[Array[String]]) {
+class Dataset(val header: DatasetHeader, val data: Map[String, Event], val patients: Array[Array[String]]) {
   def createEvents(data: Array[Array[String]]): scala.collection.immutable.Map[String, Event] = {
     val events = data.head.map(x => new HeaderParser(x.trim).event)
     val eventMap = events.zipWithIndex.groupBy(_._1).map(tpl => tpl._1 -> tpl._2.map(_._2)).toMap
@@ -13,8 +13,8 @@ class Dataset(val metaData: Array[Array[String]], val data: Map[String, Event], 
     result
   }
 
-  def this(meta: Array[Array[String]], data: Array[Array[String]]) = {
-    this(meta, {
+  def this(header: DatasetHeader, data: Array[Array[String]]) = {
+    this(header, {
       val tmp = data.map(_.drop(2).dropRight(1))
       val events = tmp.head.map(x => new HeaderParser(x.trim).event)
       val eventMap = events.zipWithIndex.groupBy(_._1).map(tpl => tpl._1 -> tpl._2.map(_._2)).toMap
@@ -22,8 +22,8 @@ class Dataset(val metaData: Array[Array[String]], val data: Map[String, Event], 
       result}, data.map(_.take(2)))
   }
 
-  def this(meta: Array[Array[String]], data: Array[Array[String]], pat: Array[Array[String]]) = {
-    this(meta, {
+  def this(header: DatasetHeader, data: Array[Array[String]], pat: Array[Array[String]]) = {
+    this(header, {
       val events = data.map(_.drop(2).dropRight(1)).head.map(x => new HeaderParser(x.trim).event)
       val eventMap = events.zipWithIndex.groupBy(_._1).map(tpl => tpl._1 -> tpl._2.map(_._2)).toMap
       val result = eventMap.map{case(e, cols) => e -> new Event(e, data.map(row => cols.map(row(_))))}
@@ -55,11 +55,12 @@ class Dataset(val metaData: Array[Array[String]], val data: Map[String, Event], 
   }
 
   def getMerged: Dataset = {
-    val framesToMerge = getFramesToMerge(metaData)
-    val tst = data.map{case (eventName, eventData) =>
+    val framesToMerge = header.getFramesToMerge
+    val tst = data.map { case (eventName, eventData) =>
       eventName -> new Event(eventName, eventData.getMergeFrames(framesToMerge.getOrElse(eventData.event, null)))
     }
-    val merged = new Dataset(metaData, tst, patients)
+    // TODO: use merged header instead of old header
+    val merged = new Dataset(header, tst, patients)
     merged
   }
 
