@@ -8,11 +8,13 @@ package my.com
  * key = C2
  */
 
-class FrameHeader(val name: String, val descr: String, val key: String) {
+class FrameHeader(val name: String, val description: String, val key: String) {
   def this(header: String) = {
     this(header.split("\t")(0), header.split("\t")(1), header.split("\t")(2))
   }
   def this(header: Array[String]) = {
     this(header(0), header(1), header(2))
   }
+
+  override def toString = List(name, description, key).mkString("\t")
 }
