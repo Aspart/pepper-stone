@@ -1,7 +1,9 @@
-package my.com
+package ru.biocad.meta
 
 import java.text.ParseException
 import java.util.regex.Pattern
+
+import ru.biocad.meta.ColumnMeta
 
 /**
  * Parse column header. Format: VALUE_NAME_E##_C##_##
@@ -9,11 +11,8 @@ import java.util.regex.Pattern
  * E## for event
  * C## for frame
  */
-class HeaderParser(val src: String) {
-
-  val (variableName, event, frame) = getHeaderFields(src)
-
-  def getHeaderFields(src: String): (String, String, String) = {
+object ColumnParser {
+  def parse(src: String): ColumnMeta = {
     val m = Pattern.compile("^(.*)_(E\\d*)_(C\\d*)(?:_(\\d*))*$").matcher(src)
     if (!m.matches) {
       throw new ParseException("Wrong header - no match to: " + src, -1)
@@ -21,19 +20,10 @@ class HeaderParser(val src: String) {
     if (m.groupCount != 4 && m.groupCount != 5) {
       throw new ParseException("Wrong header group count: " + m.groupCount.toString, -1)
     }
-    val variableName = if(m.group(4) != null){ m.group(1) + "_" + m.group(4) } else { m.group(1) }
+    val value = m.group(1)
     val event = m.group(2)
     val frame = m.group(3)
-    (variableName, event, frame)
+    val ver = if(m.group(4) != null) m.group(4).toInt else 0
+    new ColumnMeta(value, event, frame, ver)
   }
-
-
-  def isSameTitle(b:HeaderParser): Boolean = {
-    if(variableName == b.variableName && event == b.event)
-      true
-    else
-      false
-  }
-
-  override def toString: String = src
 }
