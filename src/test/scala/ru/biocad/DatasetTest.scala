@@ -16,7 +16,7 @@ class DatasetTest extends FlatSpec with Matchers {
 
   val headerBuilder = new DatasetMetaBuilder
   headerBuilder.parseHeader(meta, data(0))
-  val header = headerBuilder.getHeader
+  val header = headerBuilder.build
 //  val dataset = new Dataset(header, data)
 //  it should "load data properly" in {
 //    val rows = dataset.data("E2").data("C1").getRows

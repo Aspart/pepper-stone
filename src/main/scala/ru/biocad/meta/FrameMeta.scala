@@ -28,4 +28,18 @@ class FrameMeta(val name: String, val description: String, val key: String, val 
   }
 
   override def toString = List(name, description, key).mkString("\t")
+
+  def == (that: FrameMeta): Boolean = {
+    if(this.name == that.name && this.description == that.description && that.key == this.key)
+      true
+    else
+      false
+  }
+
+  override def equals(o: Any) = o match {
+    case that: FrameMeta => that.name == this.name && that.description == this.description && that.key == this.key
+    case _ => false
+  }
+
+  override def hashCode = toString.hashCode
 }

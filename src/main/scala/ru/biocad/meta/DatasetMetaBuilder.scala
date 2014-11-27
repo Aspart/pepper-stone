@@ -1,25 +1,24 @@
 package my.com.meta
 
-import my.com.meta.FrameMeta
 import ru.biocad.meta.{ColumnMeta, ColumnParser}
 
-import scala.collection.immutable.TreeMap
 import scala.collection.mutable.ArrayBuffer
 
 /**
  * Created by roman on 19/10/14.
  */
 class DatasetMetaBuilder {
-  var name = ""
-  var description = ""
-  var status = ""
-  var study = ""
-  var id = ""
-  var date = ""
-  var subjects = 0
-  var events = Array[EventMeta]()
-  var frames = Array[FrameMeta]()
-  var values = Array[ColumnMeta]()
+  private var name = ""
+  private var description = ""
+  private var status = ""
+  private var study = ""
+  private var id = ""
+  private var date = ""
+  private var subjects = 0
+  private var events = Array[EventMeta]()
+  private var frames = Array[FrameMeta]()
+  private var values = Array[ColumnMeta]()
+
   def setName(name: String) = this.name = name
   def setDescription(descr: String) = this.description = descr
   def setStatus(status: String) = this.status = status
@@ -27,11 +26,25 @@ class DatasetMetaBuilder {
   def setID(id: String) = this.id = id
   def setDate(date: String) = this.date = date
   def setSubjects(subjects: Int) = this.subjects = subjects
-  def setEvents(events: Array[EventMeta]) = this.events = events
-  def setFrames(frames: Array[FrameMeta]) = this.frames = frames
-  def setValues(values: Array[ColumnMeta]) = this.values = values
+  def setEvents(events: Array[EventMeta]) = {
+    this.events = events
+    this.frames = events.map(_.frames).reduce(_++_).distinct
+    this.values = frames.map(_.values).reduce(_++_).distinct
+  }
 
-  def getHeader: DatasetMeta = new DatasetMeta(name, description, status, study, id, date, subjects, events, frames, values)
+  def this(meta: DatasetMeta) = {
+    this()
+    this.setDate(meta.date)
+    this.setDescription(meta.description)
+    this.setEvents(meta.events)
+    this.setID(meta.id)
+    this.setName(meta.name)
+    this.setStatus(meta.status)
+    this.setStudy(meta.study)
+    this.setSubjects(meta.subjects)
+  }
+
+  def build: DatasetMeta = new DatasetMeta(name, description, status, study, id, date, subjects, events, frames, values)
 
   def parseHeader(meta: Array[Array[String]], columns: Array[String]) = {
     val sup = meta.map(_.mkString("\t").split(":").map(_.trim)).take(7)
@@ -47,30 +60,26 @@ class DatasetMetaBuilder {
     }
 
     val valuesMeta = columns.map(ColumnParser.parse).groupBy(_.frame)
-
     val eventMeta = meta.map(_.mkString("\t")).filter(!_.contains(":")).map(_.split("\t")).drop(1)
-    val frameBuffer = ArrayBuffer[FrameMeta]()
     val events = eventMeta.zipWithIndex.map{ case (row, index) =>
       if(row(0).startsWith("Study Event Definition ")) { // begin of event section
         var a = index+1
         val frameBuf = new ArrayBuffer[FrameMeta]
         while(a != eventMeta.length && !eventMeta(a)(0).startsWith("Study Event Definition")) { // parse all frames
-          frameBuf += new FrameMeta(eventMeta(a), valuesMeta(eventMeta(a)(2)))
+          frameBuf += new FrameMeta(eventMeta(a), valuesMeta.getOrElse(eventMeta(a)(2), Array[ColumnMeta]()))
           a += 1
         }
-        frameBuffer ++= frameBuf
         new EventMeta(row, frameBuf.toArray)
       } else {
         null
       }
     }.filter(_ != null)
 
-    setEvents(createNoMetaFrames(columns.map(ColumnParser.parse), events))
-    setFrames(createFrameLibrary(this.events))
-    setValues(columns.map(ColumnParser.parse).distinct)
+    setEvents(createFramesWithoutMetaProvided(columns.map(ColumnParser.parse), events))
   }
 
-  def createNoMetaFrames(cm: Array[ColumnMeta], em: Array[EventMeta]): Array[EventMeta] = {
+  // TODO: this seems to be an error situation, should never add anything
+  def createFramesWithoutMetaProvided(cm: Array[ColumnMeta], em: Array[EventMeta]): Array[EventMeta] = {
     val frameBuffer = ArrayBuffer[FrameMeta]()
     val columnMeta = cm.groupBy(_.event).map{case(event, vals) => event -> vals.groupBy(_.frame)}
     columnMeta.zip(columnMeta.map{case (key, value) =>
@@ -79,14 +88,12 @@ class DatasetMetaBuilder {
       val trueFrames = _eventParsed._2.map{ case(_frame, _values) =>
           new FrameMeta("CRF"+_frame.stripPrefix("C"), "Noname frame " + _frame, _frame, _values)
       }
-      val concat = trueFrames.filter(fr => !_eventProvided.frames.map(_.key).contains(fr.key)).toArray ++ _eventProvided.frames
+      // should be empty frame
+      val unknownFrames = trueFrames.filter(fr => !_eventProvided.frames.map(_.key).contains(fr.key)).toArray
+      if(unknownFrames.size != 0)
+        println("Possible error in " + _eventProvided.name)
+      val concat = unknownFrames ++ _eventProvided.frames
       new EventMeta(_eventProvided.name, _eventProvided.description, _eventProvided.key, concat)
     }.toArray
-  }
-
-  def createFrameLibrary(eventArray: Array[EventMeta]): Array[FrameMeta] = {
-    val buf = ArrayBuffer[FrameMeta]()
-    eventArray.foreach(x => buf ++= x.frames)
-    buf.toArray
   }
 }
