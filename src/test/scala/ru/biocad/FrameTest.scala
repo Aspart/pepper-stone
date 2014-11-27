@@ -16,7 +16,7 @@ class FrameTest extends FlatSpec with Matchers {
 
   val headerBuilder = new DatasetMetaBuilder
   headerBuilder.parseHeader(meta, data(0))
-  val header = headerBuilder.getHeader
+  val header = headerBuilder.build
 //  val dataset = new Dataset(header, data)
 
 //  it should "split data by frames" in {

@@ -18,6 +18,8 @@ class ColumnMeta ( val value: String, val event: String, val frame: String, val 
 
   def isSameValue(that: ColumnMeta) = value == that.value && version == that.version
 
+  def versionedAndFramedName = versionedName + "_" + frame
+
   def == (that: ColumnMeta): Boolean = {
     if(this.value == that.value && this.version == that.version)
       true

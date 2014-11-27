@@ -30,7 +30,7 @@ class DatasetMeta(val name: String, val description: String, val status: String,
   def columnsToMerge: Map[String, Map[String, String]] = {
     getFramesToMerge.map{ case(eventKey, arrFrameKeys) =>
         eventKey -> arrFrameKeys.map(x =>
-          x.map(_ -> (x(0))).filter(x => x._1 != x._2).toMap)
+          x.map(_ -> x(0)).filter(x => x._1 != x._2).toMap)
           .reduce(_++_)
     }
   }
