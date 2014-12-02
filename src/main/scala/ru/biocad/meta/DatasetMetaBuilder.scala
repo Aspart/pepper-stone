@@ -16,8 +16,6 @@ class DatasetMetaBuilder {
   private var date = ""
   private var subjects = 0
   private var events = Array[EventMeta]()
-  private var frames = Array[FrameMeta]()
-  private var values = Array[ColumnMeta]()
 
   def setName(name: String) = this.name = name
   def setDescription(descr: String) = this.description = descr
@@ -26,11 +24,7 @@ class DatasetMetaBuilder {
   def setID(id: String) = this.id = id
   def setDate(date: String) = this.date = date
   def setSubjects(subjects: Int) = this.subjects = subjects
-  def setEvents(events: Array[EventMeta]) = {
-    this.events = events
-    this.frames = events.map(_.frames).reduce(_++_).distinct
-    this.values = frames.map(_.values).reduce(_++_).distinct
-  }
+  def setEvents(events: Array[EventMeta]) = this.events = events
 
   def this(meta: DatasetMeta) = {
     this()
@@ -44,9 +38,10 @@ class DatasetMetaBuilder {
     this.setSubjects(meta.subjects)
   }
 
-  def build: DatasetMeta = new DatasetMeta(name, description, status, study, id, date, subjects, events, frames, values)
+  def build: DatasetMeta = new DatasetMeta(name, description, status, study, id, date, subjects, events)
 
   def parseHeader(meta: Array[Array[String]], columns: Array[String]) = {
+    // parse supheader
     val sup = meta.map(_.mkString("\t").split(":").map(_.trim)).take(7)
     sup.foreach{row => row(0) match {
         case "Dataset Name" => setName(row(1))
@@ -58,42 +53,36 @@ class DatasetMetaBuilder {
         case "Subjects" => setSubjects(row(1).toInt)
       }
     }
-
-    val valuesMeta = columns.map(ColumnParser.parse).groupBy(_.frame)
+    // parse events, frames, values
     val eventMeta = meta.map(_.mkString("\t")).filter(!_.contains(":")).map(_.split("\t")).drop(1)
-    val events = eventMeta.zipWithIndex.map{ case (row, index) =>
-      if(row(0).startsWith("Study Event Definition ")) { // begin of event section
-        var a = index+1
-        val frameBuf = new ArrayBuffer[FrameMeta]
-        while(a != eventMeta.length && !eventMeta(a)(0).startsWith("Study Event Definition")) { // parse all frames
-          frameBuf += new FrameMeta(eventMeta(a), valuesMeta.getOrElse(eventMeta(a)(2), Array[ColumnMeta]()))
-          a += 1
-        }
-        new EventMeta(row, frameBuf.toArray)
-      } else {
-        null
-      }
-    }.filter(_ != null)
 
-    setEvents(createFramesWithoutMetaProvided(columns.map(ColumnParser.parse), events))
+    val frameNames = createFrameNames(eventMeta)
+    val eventNames = createEventNames(eventMeta)
+    val eventsMeta = createEventsMeta(columns, eventNames, frameNames)
+
+    // check for frames not in header
+    setEvents(eventsMeta)
   }
 
-  // TODO: this seems to be an error situation, should never add anything
-  def createFramesWithoutMetaProvided(cm: Array[ColumnMeta], em: Array[EventMeta]): Array[EventMeta] = {
-    val frameBuffer = ArrayBuffer[FrameMeta]()
-    val columnMeta = cm.groupBy(_.event).map{case(event, vals) => event -> vals.groupBy(_.frame)}
-    columnMeta.zip(columnMeta.map{case (key, value) =>
-      em.map(x => x.key -> x).toMap.getOrElse(key, null)
-    }).map{ case(_eventParsed, _eventProvided) =>
-      val trueFrames = _eventParsed._2.map{ case(_frame, _values) =>
-          new FrameMeta("CRF"+_frame.stripPrefix("C"), "Noname frame " + _frame, _frame, _values)
-      }
-      // should be empty frame
-      val unknownFrames = trueFrames.filter(fr => !_eventProvided.frames.map(_.key).contains(fr.key)).toArray
-      if(unknownFrames.size != 0)
-        println("Possible error in " + _eventProvided.name)
-      val concat = unknownFrames ++ _eventProvided.frames
-      new EventMeta(_eventProvided.name, _eventProvided.description, _eventProvided.key, concat)
+  def createFrameNames(eventMeta: Array[Array[String]]): Map[String, FrameMeta] = {
+    eventMeta.filter(!_(0).startsWith("Study Event Definition")).map(x => x(2) -> new FrameMeta(x(0), x(1).split(" - ")(0), x(2), Array[ColumnMeta]())).toMap
+  }
+
+  def createEventNames(eventMeta: Array[Array[String]]): Map[String, EventMeta] = {
+    eventMeta.filter(_(0).startsWith("Study Event Definition")).map(x => x(2) -> new EventMeta(x(0), x(1), x(2), Array[FrameMeta]())).toMap
+  }
+
+  def createEventsMeta(columns: Array[String], eventNames: Map[String, EventMeta], frameNames: Map[String, FrameMeta]): Array[EventMeta] = {
+    columns.map(ColumnParser.parse).groupBy(_.event).map{case(event, evValues) =>
+      val eventTemplate = eventNames.get(event).get
+      new EventMeta(eventTemplate.name,
+        eventTemplate.description,
+        eventTemplate.key,
+        evValues.groupBy(_.frame).map{case(frame, frValues) =>
+          val frameTemplate = frameNames.getOrElse(frame, new FrameMeta("CRF"+frame.stripPrefix("C"), "", frame, frValues))
+          new FrameMeta(frameTemplate.name, frameTemplate.description, frameTemplate.key, frValues)
+        }.toArray
+      )
     }.toArray
   }
 }
