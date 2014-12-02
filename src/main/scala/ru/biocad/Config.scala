@@ -5,7 +5,8 @@ package my.com
  */
 case class Config(in: String = "",
                   out: String = "",
+                  folder: Boolean = false,
                   header: Boolean = false,
                   verbose: Boolean = false,
-                  debug: Boolean = false,
-                  split: Boolean = false)
+                  debug: Boolean = false
+                   )
