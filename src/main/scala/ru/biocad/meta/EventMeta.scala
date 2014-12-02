@@ -18,7 +18,7 @@ class EventMeta(val name: String, val description: String, val key: String, val 
   }
 
   def getFrameKeysByDescr(descrs: Array[String]): Map[String, String] = {
-    val keyMap = frames.map{ x =>
+    val keyMap = frames.map { x =>
       x.description.split(" - ")(0).drop(3) -> x.key
     }.toMap
     descrs.map { x =>

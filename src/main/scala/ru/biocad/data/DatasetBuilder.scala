@@ -18,7 +18,9 @@ class DatasetBuilder {
   }
 
   def setMeta(meta: DatasetMetaBuilder) = this.meta = meta
+
   def setData(data: Array[Array[String]]) = this.data = data
+
   def setPatients(patients: Array[Array[String]]) = this.patients = patients
 
   def build = new Dataset(meta.build, data, patients)

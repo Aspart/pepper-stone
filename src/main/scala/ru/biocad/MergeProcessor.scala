@@ -1,8 +1,8 @@
 package ru.biocad
 
-import my.com.meta.{DatasetMetaBuilder, FrameMeta, EventMeta, DatasetMeta}
+import my.com.meta.{DatasetMeta, DatasetMetaBuilder, EventMeta, FrameMeta}
 import ru.biocad.data.{Dataset, DatasetBuilder}
-import ru.biocad.meta.{ColumnParser, ColumnMeta}
+import ru.biocad.meta.{ColumnMeta, ColumnParser}
 
 /**
  * Created by roman on 26/11/14.
@@ -27,7 +27,9 @@ object MergeProcessor {
       val cid = ColumnParser.parse(x(0).trim)
       val newFrame = colToMerge.getOrElse(cid.frame, cid.frame)
       val newCid = new ColumnMeta(cid.value, cid.event, newFrame, cid.version)
-      val inres = result.getOrElse(newCid.toString, Array.fill(patCount) {""})
+      val inres = result.getOrElse(newCid.toString, Array.fill(patCount) {
+        ""
+      })
       result(newCid.toString) = inres.zip(x).map {
         case (od, nd) =>
           if (od.isEmpty)
@@ -36,11 +38,17 @@ object MergeProcessor {
             od
       }
     }
-    result.map{case(h, d) =>
+    result.map { case (h, d) =>
       d(0) = h.toString
       d
     }
     result.values.toArray
+  }
+
+  private def frameRemap(meta: DatasetMeta): Map[String, String] = {
+    val framesLib = meta.getFramesLib.map(x => x.description -> x).toMap
+    // merge frames
+    meta.events.flatMap(_.frames.map(fr => fr.key -> framesLib(fr.description.split(" - ")(0)).key)).toMap
   }
 
   private def mergeFrameMeta(meta: DatasetMeta): Array[EventMeta] = {
@@ -60,12 +68,6 @@ object MergeProcessor {
       new EventMeta(event.name, event.key, event.description, filteredFrames)
     }
     result
-  }
-
-  private def frameRemap(meta: DatasetMeta): Map[String, String] = {
-    val framesLib = meta.getFramesLib.map(x => x.description -> x).toMap
-    // merge frames
-    meta.events.flatMap(_.frames.map( fr => fr.key -> framesLib(fr.description.split(" - ")(0)).key)).toMap
   }
 
 }

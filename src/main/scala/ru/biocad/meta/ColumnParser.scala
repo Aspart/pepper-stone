@@ -21,13 +21,13 @@ object ColumnParser {
       val value = m.group(1)
       val event = m.group(2)
       val frame = m.group(3)
-      val ver = if(m.group(4) != null) m.group(4).toInt else 0
+      val ver = if (m.group(4) != null) m.group(4).toInt else 0
       new ColumnMeta(value, event, frame, ver)
     } else if (m2.matches) {
       val value = m2.group(1)
       val event = m2.group(2)
       val frame = m2.group(4)
-      val ver = if(m2.group(3) != null) m2.group(3).toInt else 0
+      val ver = if (m2.group(3) != null) m2.group(3).toInt else 0
       new ColumnMeta(value, event, frame, ver)
     } else {
       throw new ParseException("Wrong header - no match to: " + src, -1)
