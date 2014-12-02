@@ -1,31 +1,38 @@
 package my.com
 
-import java.io.{File, PrintWriter}
+import ru.biocad.data.DatasetLoader
+import ru.biocad.{ExportServant, MergeProcessor}
 
-import my.com.meta.{DatasetMeta, EventMeta, FrameMeta}
-import ru.biocad.{MergeProcessor, ExportServant}
-import ru.biocad.data.{DatasetBuilder, DatasetLoader}
-import ru.biocad.meta.{ColumnMeta, ColumnParser}
 /**
  * Created by roman on 25/09/14.
  */
 
 object main {
+  def main(args: Array[String]): Unit = {
+    parse(args)
+  }
+
   def parse(args: Array[String]) = {
     val parser = new scopt.OptionParser[Config]("pepper-stone") {
       head("Pepper-stone merger for OpenClinica data", "0.2")
       opt[String]('i', "input") valueName "<file/folder>" required() action { (x, c) =>
-        c.copy(in = x) } text "Input file/folder"
+        c.copy(in = x)
+      } text "Input file/folder"
       opt[Unit]('f', "folder") action { (_, c) =>
-        c.copy(folder = true) } text "Specify if input is folder"
+        c.copy(folder = true)
+      } text "Specify if input is folder"
       opt[String]('o', "out") valueName "<file>" required() action { (x, c) =>
-        c.copy(out = x) } text "Output file (or folder if -f specified)"
+        c.copy(out = x)
+      } text "Output file (or folder if -f specified)"
       opt[Unit]("header") action { (_, c) =>
-        c.copy(header = true) } text "Keep header in output file"
+        c.copy(header = true)
+      } text "Keep header in output file"
       opt[Unit]("verbose") action { (_, c) =>
-        c.copy(verbose = true) } text "Become verbose"
+        c.copy(verbose = true)
+      } text "Become verbose"
       opt[Unit]("debug") hidden() action { (_, c) =>
-        c.copy(debug = true) } text "Debug option"
+        c.copy(debug = true)
+      } text "Debug option"
       note("some notes.\n")
       help("help") text "prints this usage text"
     }
@@ -38,13 +45,9 @@ object main {
   }
 
   def process(config: Config) = {
-    val ds = if(config.folder) DatasetLoader.XLSLoadFromFolder(config.in) else DatasetLoader.XLSLoad(config.in)
+    val ds = if (config.folder) DatasetLoader.XLSLoadFromFolder(config.in) else DatasetLoader.XLSLoad(config.in)
     val merged = MergeProcessor.merge(ds)
 
-    ExportServant.exportEachValueAtAllEvents(merged, config.out)
-  }
-
-  def main(args: Array[String]): Unit = {
-    parse(args)
+    ExportServant.exportEachFrameAtAllEvents(merged, config.out)
   }
 }

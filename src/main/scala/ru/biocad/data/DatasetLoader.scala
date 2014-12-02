@@ -1,28 +1,24 @@
 package ru.biocad.data
 
+import java.io.File
+
 import my.com.meta.DatasetMetaBuilder
 
 import scala.io.Source
 
-import java.io.File
 /**
  * Created by roman on 26/11/14.
  */
 object DatasetLoader {
+  def XLSLoadFromFolder(folder: String): Dataset = {
+    getFilesToOpen(folder).map(XLSLoad).reduce(_ + _)
+  }
+
   def XLSLoad(file: String) = {
     val (header, data, patients) = loadFile(file)
     val metaBuilder = new DatasetMetaBuilder
     metaBuilder.parseHeader(header, data.map(_.head))
     new Dataset(metaBuilder.build, data, patients)
-  }
-
-  def XLSLoadFromFolder(folder: String): Dataset = {
-    getFilesToOpen(folder).map(XLSLoad).reduce(_+_)
-  }
-
-  private def getFilesToOpen(base: String): Array[String] = {
-    val these = new File(base).listFiles
-    these.filter(_.getName.endsWith(".xls")).map(_.getAbsolutePath)
   }
 
   private def loadFile(file: String): (Array[Array[String]], Array[Array[String]], Array[Array[String]]) = {
@@ -41,5 +37,10 @@ object DatasetLoader {
   private def getData(table: Array[Array[String]]): Array[Array[String]] = {
     val dataLength = 3 // magic number: in TSV all data rows has length > 3 cells
     table.filter(_.length > dataLength)
+  }
+
+  private def getFilesToOpen(base: String): Array[String] = {
+    val these = new File(base).listFiles
+    these.filter(_.getName.endsWith(".xls")).map(_.getAbsolutePath)
   }
 }
