@@ -48,6 +48,8 @@ object main {
     val ds = if (config.folder) DatasetLoader.XLSLoadFromFolder(config.in) else DatasetLoader.XLSLoad(config.in)
     val merged = MergeProcessor.merge(ds)
 
-    ExportServant.exportEachFrameAtAllEvents(merged, config.out)
+    //ExportServant.exportEachFrameAtAllEvents(merged, config.out)
+    //ExportServant.exportEachValueAtAllEvents(merged, config.out)
+    ExportServant.exportFramesOrdered(merged, config.out)
   }
 }
