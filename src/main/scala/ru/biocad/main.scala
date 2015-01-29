@@ -1,7 +1,4 @@
-package my.com
-
-import ru.biocad.data.DatasetLoader
-import ru.biocad.{ExportServant, MergeProcessor}
+package ru.biocad
 
 /**
  * Created by roman on 25/09/14.
@@ -13,43 +10,33 @@ object main {
   }
 
   def parse(args: Array[String]) = {
-    val parser = new scopt.OptionParser[Config]("pepper-stone") {
+    val parser = new scopt.OptionParser[OCConfig]("pepper-stone") {
       head("Pepper-stone merger for OpenClinica data", "0.2")
-      opt[String]('i', "input") valueName "<file/folder>" required() action { (x, c) =>
+      opt[String]('i', "input") valueName "<folder>" required() action { (x, c) =>
         c.copy(in = x)
-      } text "Input file/folder"
-      opt[Unit]('f', "folder") action { (_, c) =>
-        c.copy(folder = true)
-      } text "Specify if input is folder"
+      } text "Input folder"
       opt[String]('o', "out") valueName "<file>" required() action { (x, c) =>
         c.copy(out = x)
       } text "Output file (or folder if -f specified)"
-      opt[Unit]("header") action { (_, c) =>
-        c.copy(header = true)
-      } text "Keep header in output file"
-      opt[Unit]("verbose") action { (_, c) =>
-        c.copy(verbose = true)
-      } text "Become verbose"
-      opt[Unit]("debug") hidden() action { (_, c) =>
-        c.copy(debug = true)
-      } text "Debug option"
       note("some notes.\n")
       help("help") text "prints this usage text"
     }
-    // parser.parse returns Option[C]
-    parser.parse(args, Config()) map { config =>
+    parser.parse(args, OCConfig()) map { config =>
       process(config)
     } getOrElse {
       parser.showUsageAsError
     }
   }
 
-  def process(config: Config) = {
-    val ds = if (config.folder) DatasetLoader.XLSLoadFromFolder(config.in) else DatasetLoader.XLSLoad(config.in)
-    val merged = MergeProcessor.merge(ds)
+  def process(config: OCConfig) = {
+    val ds = OCDataLoader.XLSLoadFromFolder(config.in)
+    val merged = ds.merge
 
-    //ExportServant.exportEachFrameAtAllEvents(merged, config.out)
-    //ExportServant.exportEachValueAtAllEvents(merged, config.out)
-    ExportServant.exportFramesOrdered(merged, config.out)
+    val f = merged.ocTable.table.map(_._1.frame).toList.distinct
+    val c = merged.ocMeta.frames.map(x => x.key -> x.description)
+    merged.toString
+    // ExportServant.exportEachFrameAtAllEvents(merged, config.out)
+    // ExportServant.exportEachValueAtAllEvents(merged, config.out)
+    // OCDataExporter.exportFramesOrdered(merged, config.out)
   }
 }
