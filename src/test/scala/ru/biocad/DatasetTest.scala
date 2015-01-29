@@ -1,6 +1,5 @@
 package my.com
 
-import my.com.meta.DatasetMetaBuilder
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.io.Source
@@ -14,9 +13,6 @@ class DatasetTest extends FlatSpec with Matchers {
   val meta = source.filter(_.length <= 3)
   val data = source.filter(_.length > 3)
 
-  val headerBuilder = new DatasetMetaBuilder
-  headerBuilder.parseHeader(meta, data(0))
-  val header = headerBuilder.build
 //  val dataset = new Dataset(header, data)
 //  it should "load data properly" in {
 //    val rows = dataset.data("E2").data("C1").getRows
