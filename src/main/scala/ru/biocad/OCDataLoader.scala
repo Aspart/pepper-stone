@@ -1,11 +1,15 @@
 package ru.biocad
 
-import java.io.File
+import java.io.{FileInputStream, BufferedInputStream, InputStream, File}
 
 import scala.io.Source
 
 /**
  * Created by roman on 26/11/14.
+ */
+
+/**
+ * Load data from xls files to OCData
  */
 object OCDataLoader {
   /**
@@ -14,16 +18,16 @@ object OCDataLoader {
    * @return OCData merged from all files from folder
    */
   def XLSLoadFromFolder(folder: String): OCData = {
-    new File(folder).listFiles.filter(_.getName.endsWith(".xls")).map(XLSLoad).reduce(_ + _)
+    new File(folder).listFiles.filter(_.getName.endsWith(".xls")).map(x => XLSLoad(new BufferedInputStream(new FileInputStream(x)))).reduce(_ + _)
   }
 
   /**
    * Create OCTableMeta and OCTableData from source file
-   * @param file with OpenClinica data
+   * @param is stream with OpenClinica data
    * @return OCData from file specified
    */
-  def XLSLoad(file: File): OCData = {
-    val lines = Source.fromFile(file).getLines().filter(!_.isEmpty).map(_.split("\t",-1)).toArray // -1 to parse even if no data in columns
+  def XLSLoad(is: InputStream): OCData = {
+    val lines = Source.fromInputStream(is).getLines().filter(!_.isEmpty).map(_.split("\t",-1)).toArray // -1 to parse even if no data in columns
     val metaLines = getMetaLines(lines)
     val tableLines = getTableLines(lines)
 

@@ -1,7 +1,8 @@
 package ru.biocad
 
 /**
- * Handle header of OpenClinica data
+ * Meta for OCTable class
+ * @param events - meta about all events in OCTable
  */
 case class OCMeta(events: Array[OCEvent]) {
   val frames = events.map(_.frames).reduce(_ ++ _).distinct
@@ -9,20 +10,26 @@ case class OCMeta(events: Array[OCEvent]) {
 
   def +(that: OCMeta): OCMeta = OCMeta(that.events ++ this.events)
 
+  /**
+   * Get unique frames (from description)
+   * @return
+   */
   def getFramesLib: Array[OCFrame] = {
     val framesToMerge = frames.map {frame =>
       frame.description -> frames.filter(_.description == frame.description).map(_.key)
     }.filter(_._2.size > 1).toMap
 
-    val unitedFrames = framesToMerge.map { case (desc, keys) =>
+    frames.filter{fr => !framesToMerge.values.reduce(_ ++ _).contains(fr.key)} ++ framesToMerge.map { case (desc, keys) =>
       frames.filter(f => keys.contains(f.key)).reduce(_ + _) match {
         case res => OCFrame(res.name, desc, res.key, res.columns)
       }
     }
-
-    frames.filter{fr => !framesToMerge.values.reduce(_ ++ _).contains(fr.key)} ++ unitedFrames
   }
 
+  /**
+   * Merge meta frames
+   * @return
+   */
   def merge: OCMeta = {
     val framesLib = getFramesLib.map(x => x.description -> x).toMap
     val remap = scala.collection.mutable.Map[String, String]()
@@ -77,8 +84,9 @@ object OCMeta {
         eventTemplate.description,
         eventTemplate.key,
         evValues.groupBy(_.frame).map { case (frame, frValues) =>
-          val frameTemplate = frameNames.getOrElse(frame, new OCFrame("CRF" + frame.stripPrefix("C"), "", frame, frValues))
-          new OCFrame(frameTemplate.name, frameTemplate.description, frameTemplate.key, frValues)
+          frameNames.getOrElse(frame, new OCFrame("CRF" + frame.stripPrefix("C"), "", frame, frValues)) match {
+            case t => OCFrame (t.name, t.description, t.key, frValues)
+          }
         }.toArray
       )
     }.toArray

@@ -7,6 +7,14 @@ import java.util.regex.Pattern
  * Created by roman on 12/11/14.
  */
 
+/**
+ * Container to store column data
+ * @param value - value name
+ * @param event - event E##
+ * @param repeatEvent - repeat event id, integer
+ * @param frame - frame C##
+ * @param version - last number
+ */
 case class OCColumn(value: String, event: String, repeatEvent: Int = 0, frame: String, version: Int = 0) {
   def changeFrame(frame: String) = OCColumn(value, event, repeatEvent, frame, version)
 
@@ -23,7 +31,7 @@ case class OCColumn(value: String, event: String, repeatEvent: Int = 0, frame: S
 
   def withVerAndFrame = withVer + "_" + frame
 
-  def withVer = value + {if (version != 0) "_" + version.toString}
+  def withVer = value + (if (version != 0) "_" + version.toString else "")
 
   override def equals(o: Any) = o match {
     case that: OCColumn => this == that
@@ -35,13 +43,13 @@ case class OCColumn(value: String, event: String, repeatEvent: Int = 0, frame: S
   override def hashCode = toString.hashCode
 }
 
+/**
+ * Parse column header. Format: VALUE_NAME_E##_##_C##_##
+ * If last two digits exist - value name is VALUE_NAME_##, else VALUE_NAME
+ * E##_## for event: if last two digits not exist E## else E##_##
+ * C## for frame
+ */
 object OCColumn {
-  /**
-   * Parse column header. Format: VALUE_NAME_E##_##_C##_##
-   * If last two digits exist - value name is VALUE_NAME_##, else VALUE_NAME
-   * E##_## for event: if last two digits not exist E## else E##_##
-   * C## for frame
-   */
   def apply(s: String) = {
     val m = Pattern.compile("^(.*)_(E\\d*)(?:_(\\d*))*_(C\\d*)(?:_(\\d*))*$").matcher(s)
     if (m.matches) {
