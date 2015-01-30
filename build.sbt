@@ -1,6 +1,6 @@
 import AssemblyKeys._  // put this at the top of the file
 
-organization := "my.com"
+organization := "ru.biocad"
 
 name := "pepper-stone"
 
@@ -16,10 +16,10 @@ libraryDependencies += "com.github.scopt" %% "scopt" % "3.2.0"
 
 resolvers += Resolver.sonatypeRepo("public")
 
-mainClass in (Compile, run) := Some("my.com.main")
+mainClass in (Compile, run) := Some("ru.biocad")
 
-mainClass in (Compile, packageBin) := Some("my.com.main")
+mainClass in (Compile, packageBin) := Some("ru.biocad")
 
-mainClass in assembly := Some("my.com.main")
+mainClass in assembly := Some("ru.biocad")
 
 assemblySettings
