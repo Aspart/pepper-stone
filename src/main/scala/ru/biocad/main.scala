@@ -9,6 +9,10 @@ object main {
     parse(args)
   }
 
+  /**
+   * Parse command line arguments
+   * @param args command line argument array
+   */
   def parse(args: Array[String]) = {
     val parser = new scopt.OptionParser[OCConfig]("pepper-stone") {
       head("Pepper-stone merger for OpenClinica data", "0.2")
@@ -28,6 +32,11 @@ object main {
     }
   }
 
+  /**
+   * Main function
+   * @param config from command line
+   * @return nothing
+   */
   def process(config: OCConfig) = {
     val ds = OCDataLoader.XLSLoadFromFolder(config.in)
     val merged = ds.merge
