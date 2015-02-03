@@ -1,4 +1,4 @@
-import AssemblyKeys._  // put this at the top of the file
+import AssemblyKeys._
 
 organization := "ru.biocad"
 
@@ -8,7 +8,7 @@ version := "1.0"
 
 description := "Clinical Data Merge System"
 
-scalaVersion := "2.11.2"
+scalaVersion := "2.11.4"
 
 libraryDependencies += "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test"
 

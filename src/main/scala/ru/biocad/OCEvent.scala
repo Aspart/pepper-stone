@@ -7,6 +7,15 @@ package ru.biocad
  * @param key - E# or E##, etc.
  */
 case class OCEvent(name: String, description: String, key: String, frames: Array[OCFrame]) {
+  def +(that: OCEvent): OCEvent = OCEvent(name, description, key, (frames ++ that.frames).distinct)
+
+  def ==(that: OCFrame): Boolean = this.name == that.name && this.description == that.description && that.key == this.key
+
+  override def equals(o: Any) = o match {
+    case that: OCEvent => this == that
+    case _ => false
+  }
+
   def framesToMerge: Array[Array[String]] = {
     frames.map{frame =>
       frames.map(x => x.description -> x.key).filter(_._1 == frame.description).map(_._2)

@@ -8,12 +8,15 @@ package ru.biocad
  * key = C2
  */
 case class OCFrame(name: String, description: String, key: String, columns: Array[OCColumn]) {
-  def +(that: OCFrame): OCFrame = OCFrame(name, description, key, (columns ++ that.columns.map(_.changeFrame(key))).distinct)
+  def +(that: OCFrame): OCFrame = {
+    val colm = (columns ++ that.columns.map(_.changeFrame(key))).distinct
+    OCFrame(name, description, key, colm)
+  }
 
   def ==(that: OCFrame): Boolean = this.name == that.name && this.description == that.description && that.key == this.key
 
   override def equals(o: Any) = o match {
-    case that: OCFrame => that.name == this.name && that.description == this.description && that.key == this.key
+    case that: OCFrame => this == that
     case _ => false
   }
 
