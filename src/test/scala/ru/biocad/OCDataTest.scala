@@ -8,11 +8,11 @@ import org.scalatest.{FlatSpec, Matchers}
 class OCDataTest extends FlatSpec with Matchers {
   it should "concatenate data properly" in {
     val is = getClass.getResource("/testData.tsv").openStream()
-    val ocData = OCDataLoader.XLSLoad(is)
+    val ocData = OCData(is)
   }
 
   it should "merge data properly" in {
     val is = getClass.getResource("/testData.tsv").openStream()
-    val ocData = OCDataLoader.XLSLoad(is)
+    val ocData = OCData(is)
   }
 }

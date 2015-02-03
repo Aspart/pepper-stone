@@ -38,14 +38,8 @@ object main {
    * @return nothing
    */
   def process(config: OCConfig) = {
-    val ds = OCDataLoader.XLSLoadFromFolder(config.in)
+    val ds = OCData(config.in)
     val merged = ds.merge
-<<<<<<< HEAD
-=======
-
-    val f = merged.ocTable.table.map(_._1.frame).toList.distinct
-    val c = merged.ocMeta.frames.map(x => x.key -> x.description)
->>>>>>> 9469e764633f746c2783a5a2ec5024cb597a9a07
     merged.toString
     // ExportServant.exportEachFrameAtAllEvents(merged, config.out)
     // ExportServant.exportEachValueAtAllEvents(merged, config.out)
