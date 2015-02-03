@@ -9,6 +9,10 @@ class OCDataLoaderTest extends FlatSpec with Matchers {
   "OCDataLoader" should "load OpenClinica data" in {
     val is = getClass.getResource("/testData.tsv").openStream()
     val ocData = OCDataLoader.XLSLoad(is)
+<<<<<<< HEAD
     // TODO
+=======
+    // TODO: add test here
+>>>>>>> 9469e764633f746c2783a5a2ec5024cb597a9a07
   }
 }

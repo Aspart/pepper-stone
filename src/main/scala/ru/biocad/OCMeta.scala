@@ -24,7 +24,7 @@ case class OCMeta(events: Array[OCEvent]) {
   }
 
   /**
-   * Merge meta
+   * Merge meta frames
    * @return
    */
   def merge: OCMeta = {
