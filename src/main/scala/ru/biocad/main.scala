@@ -40,9 +40,6 @@ object main {
   def process(config: OCConfig) = {
     val ds = OCData(config.in)
     val merged = ds.merge
-    merged.toString
-    // ExportServant.exportEachFrameAtAllEvents(merged, config.out)
-    // ExportServant.exportEachValueAtAllEvents(merged, config.out)
-    // OCDataExporter.exportFramesOrdered(merged, config.out)
+    merged.exportFrameValue(config.out)
   }
 }

@@ -10,6 +10,6 @@ Study Event Definition 2	Exam 2	E2
 CRF1	01_Frame number one - v.1	C1
 CRF3	01_Frame number two - v.2	C3
 
-ID	SB	A1_E2_C1	A2_E2_C1	A1_E2_C3	A3_E2_C3
+Study Subject ID	Protocol ID	A1_E2_C1	A2_E2_C1	A1_E2_C3	A3_E2_C3
 id1	sb1	v1	v2		
 id2	sb2			v1	v3

@@ -11,35 +11,28 @@ import java.util.regex.Pattern
  * Container to store column data
  * @param value - value name
  * @param event - event E##
- * @param repeatEvent - repeat event id, integer
  * @param frame - frame C##
  * @param version - last number
  */
 case class OCColumn(value: String, event: String, repeatEvent: Int = 0, frame: String, version: Int = 0) {
-  def changeFrame(frame: String) = OCColumn(value, event, repeatEvent, frame, version)
+  def changeFrame(newFrame: String) = OCColumn(value, event, repeatEvent, newFrame, version)
+  def changeEventAndFrame(newEvent: String, newFrame: String) = OCColumn(value, newEvent, repeatEvent, newFrame, version)
 
-  override def toString = {
-    value + "_" + event + "_" +
-      (if(repeatEvent!=0) repeatEvent.toString + "_" else "") +
-      frame +
-      (if(version!=0) "_" + version.toString else "")
-  }
+  def getVersion = if (version != 0) "_" + version.toString else ""
 
-  def eventAndFrame = List(event, frame).mkString("_")
+  override def toString = s"${value}_${event}_$frame" + getVersion
 
-  def isEqWithVer(that: OCColumn) = withVer == that.withVer
+  def withVerAndFrame = s"${withVer}_$frame"
 
-  def withVerAndFrame = withVer + "_" + frame
-
-  def withVer = value + (if (version != 0) "_" + version.toString else "")
+  def withVer = value + getVersion
 
   override def equals(o: Any) = o match {
-    case that: OCColumn => this == that
+    case that: OCColumn => this.toString == that.toString
     case _ => false
   }
 
-  def ==(that: OCColumn): Boolean = this.toString == that.toString
-  
+  def ==(that: OCColumn): Boolean = this.withVerAndFrame == that.withVerAndFrame
+
   override def hashCode = toString.hashCode
 }
 
@@ -58,10 +51,10 @@ object OCColumn {
       }
       val value = m.group(1)
       val event = m.group(2)
-      val repEvent = if (m.group(3) != null) m.group(3).toInt else 0
+      val repeat = if (m.group(3) != null) m.group(3).toInt else 0
       val frame = m.group(4)
       val ver = if (m.group(5) != null) m.group(5).toInt else 0
-      new OCColumn(value, event, repEvent, frame, ver)
+      new OCColumn(value, event, repeat, frame, ver)
     } else {
       throw new ParseException("Wrong header - no match to: " + s, -1)
     }

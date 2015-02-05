@@ -2,8 +2,6 @@ package ru.biocad
 
 import org.scalatest.{FlatSpec, Matchers}
 
-import scala.io.Source
-
 /**
  * Created by roman on 28/09/14.
  */

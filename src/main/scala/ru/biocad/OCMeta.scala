@@ -17,10 +17,14 @@ case class OCMeta(events: Array[OCEvent]) {
       frame.description -> frames.filter(_.description == frame.description).map(_.key)
     }.filter(_._2.size > 1).toMap
 
-    frames.filter{fr => !framesToMerge.values.reduce(_ ++ _).contains(fr.key)} ++
-      framesToMerge.map { case (desc, keys) =>
-        frames.filter(f => keys.contains(f.key)).reduce(_ + _)
-    }
+
+    if(framesToMerge.nonEmpty)
+      frames.filter{fr => !framesToMerge.values.reduce(_ ++ _).contains(fr.key)} ++
+        framesToMerge.map { case (desc, keys) =>
+          frames.filter(f => keys.contains(f.key)).reduce(_ + _)
+      }
+    else
+      frames
   }
 
   /**
@@ -48,10 +52,10 @@ object OCMeta {
     val eventLines = lines.map(_.mkString("\t")).filter(!_.contains(":")).map(_.split("\t")).drop(1)
 
     // check for frames not in header
-    val frameNames = createFramesLib(eventLines)
-    val eventNames = createEventsLib(eventLines)
+    val frameLib = createFramesLib(eventLines)
+    val eventLib = createEventsLib(eventLines)
 
-    val eventsMeta = createEvents(header, eventNames, frameNames)
+    val eventsMeta = createEvents(header, eventLib, frameLib)
 
     OCMeta(eventsMeta)
   }
@@ -64,14 +68,12 @@ object OCMeta {
     eventMeta.filter(_(0).startsWith("Study Event Definition")).map(x => x(2) -> OCEvent(x(0), x(1), x(2), Array[OCFrame]())).toMap
   }
 
-  private def createEvents(columns: Array[OCColumn], eventNames: Map[String, OCEvent], frameNames: Map[String, OCFrame]): Array[OCEvent] = {
+  private def createEvents(columns: Array[OCColumn], eventLib: Map[String, OCEvent], frameLib: Map[String, OCFrame]): Array[OCEvent] = {
     columns.groupBy(_.event).map { case (event, evValues) =>
-      val eventTemplate = eventNames.get(event).get
-      OCEvent(eventTemplate.name,
-        eventTemplate.description,
-        eventTemplate.key,
+      val eventTemplate = eventLib(event)
+      OCEvent(eventTemplate.name, eventTemplate.description, eventTemplate.key,
         evValues.groupBy(_.frame).map { case (frame, frValues) =>
-          frameNames.getOrElse(frame, OCFrame("CRF" + frame.stripPrefix("C"), "", frame, frValues)) match {
+          frameLib.getOrElse(frame, OCFrame("CRF" + frame.stripPrefix("C"), "", frame, frValues)) match {
             case t => OCFrame (t.name, t.description, t.key, frValues)
           }
         }.toArray

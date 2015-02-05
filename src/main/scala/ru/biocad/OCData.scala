@@ -22,6 +22,14 @@ case class OCData(ocMeta: OCMeta, ocTable: OCTable) {
     OCData(newMeta, newData)
   }
 
+  override def toString: String = {
+    List(ocMeta.toString,
+    ocTable.toString).mkString("\n")
+  }
+
+  def exportFrameValue(outputDir: String): Unit = {
+    ocTable.exportFrameValue(outputDir, ocMeta)
+  }
 //  def exportValues(ds: OCData, baseOutPath: String): Unit = {
 //    val exportMap = OCDataExporter.magicSortHelper("/Users/roman/Projects/Biocad/clinical-sort")
 //
@@ -53,8 +61,8 @@ case class OCData(ocMeta: OCMeta, ocTable: OCTable) {
 //    }
 //  }
 //
-//  def exportFrames(ds: OCData, baseOutPath: String): Unit = {
-//    val exportMap = OCDataExporter.magicSortHelper("/Users/roman/Projects/Biocad/clinical-sort")
+//  def exportFrames(baseOutPath: String): Unit = {
+//    val exportMap = .magicSortHelper("/Users/roman/Projects/Biocad/clinical-sort")
 //
 //    val helperMap = (ds.patients ++ ds.data).transpose
 //    val headerHelper = helperMap.head
@@ -174,7 +182,7 @@ object OCData {
     private def getTable(tableLines: Array[Array[String]], header: Array[OCColumn]): OCTable = {
       val patients = tableLines.drop(1).map(p => OCPatient(p.take(2)))
 
-      val table = tableLines.drop(1).map(_.dropRight(2)).transpose.zip(header).map{case(dat,col) =>
+      val table = tableLines.drop(1).map(_.drop(2)).transpose.zip(header).map{case(dat,col) =>
         col -> patients.zip(dat).map{case(p,d) =>
           p -> d
         }.toMap

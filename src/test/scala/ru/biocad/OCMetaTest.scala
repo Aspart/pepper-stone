@@ -9,7 +9,7 @@ import scala.io.Source
  */
 class OCMetaTest extends FlatSpec with Matchers {    val is = getClass.getResource("/E1.tsv").openStream()
   val lines = Source.fromInputStream(is).getLines().filter(!_.isEmpty).map(_.split("\t",-1)).toArray // -1 to parse even if no data in columns)
-  val header = lines(11).drop(2).map(OCColumn(_))
+  val header = lines(11).drop(2).dropRight(1).map(OCColumn(_))
 
   val ocMeta = OCMeta(lines.filter(_.length <= 3), header)
 
