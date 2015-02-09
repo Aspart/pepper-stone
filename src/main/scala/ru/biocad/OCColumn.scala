@@ -49,7 +49,15 @@ object OCColumn {
       if (m.groupCount != 4 && m.groupCount != 5) {
         throw new ParseException("Wrong header group count: " + m.groupCount.toString, -1)
       }
-      val value = m.group(1)
+      val value = {
+        val tmp = m.group(1)
+        if(tmp == "MAX_D_mm") {
+          "MAX_D"
+        } else if (tmp == "SUM_mm") {
+          "SUM"
+        } else
+          tmp
+      }
       val event = m.group(2)
       val repeat = if (m.group(3) != null) m.group(3).toInt else 0
       val frame = m.group(4)

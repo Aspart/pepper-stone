@@ -4,6 +4,8 @@ package ru.biocad
  * Created by roman on 25/09/14.
  */
 
+import org.slf4j._
+
 object main {
   def main(args: Array[String]): Unit = {
     parse(args)
@@ -38,8 +40,14 @@ object main {
    * @return nothing
    */
   def process(config: OCConfig) = {
+    val logger = LoggerFactory.getLogger("OCM.logger")
+    logger.info(s"OCM Begin")
+    logger.info(s"Start loading from ${config.in}")
     val ds = OCData(config.in)
+    logger.info(s"Merging frames")
     val merged = ds.merge
+    logger.info(s"Writing results to ${config.out}")
     merged.exportFrameValue(config.out)
+    logger.info(s"OCM Done")
   }
 }
