@@ -1,6 +1,6 @@
 package ru.biocad
 
-import java.io.{PrintWriter, File}
+import java.io.{FileInputStream, PrintWriter, File}
 
 import scala.collection.immutable.Map
 
@@ -14,16 +14,11 @@ import scala.collection.immutable.Map
  */
 case class OCTable(data: Map[OCColumn, Map[OCPatient, String]]) {
   def +(that: OCTable): OCTable = {
-    // TODO: add event to table.getOrElse(...)
     val columns = data.keySet.toSeq ++ that.data.keySet.toSeq
-    OCTable(
-      columns.map{col =>
-        col -> {
-            val a = data.getOrElse(col, Map[OCPatient, String]())
-            val b = that.data.getOrElse(col, Map[OCPatient, String]())
-            a ++ b
-          }
-      }.toMap)
+    OCTable(columns.map{col => col -> {
+      data.getOrElse(col, Map[OCPatient, String]()) ++ that.data.getOrElse(col, Map[OCPatient, String]())
+      }
+    }.toMap)
   }
 
   /**
@@ -62,15 +57,6 @@ case class OCTable(data: Map[OCColumn, Map[OCPatient, String]]) {
     result
   }
 
-  // TODO: implement functions below
-  /**
-   * Create dir for each event, create dir for each frame in event, save all values from this event+frame to single file
-   * @param outputDir - output directory
-   */
-  def exportEventFrame(outputDir: String) = {
-
-  }
-
   /**
    * Create dir for each frame, create file for each value, save value at all events
    * @param outputDir - output directory
@@ -83,7 +69,7 @@ case class OCTable(data: Map[OCColumn, Map[OCPatient, String]]) {
         data.values.map(_.keys).reduce(_ ++ _).toSeq.distinct.sortBy(_.toString).toArray
       }
       else {
-        OCData(patientOrder).ocTable.data.head._2.keys.toArray
+        scala.io.Source.fromInputStream(new FileInputStream(new File(patientOrder))).getLines().map(_.split("\t").take(2)).drop(67).map(OCPatient(_)).toArray
       }
     }
     val frameValues = data.groupBy(_._1.frame).map(x => x._1 -> x._2.groupBy(_._1.withVer))
@@ -91,7 +77,7 @@ case class OCTable(data: Map[OCColumn, Map[OCPatient, String]]) {
       values.map{ case(value, columns) =>
           value -> columns.map{case(column, cdat) =>
             column -> patients.map(p => cdat.getOrElse(p, "")).toArray
-          }.toSeq.sortBy(_._1.event.stripPrefix("E").toInt)
+          }.toSeq.sortBy(_._1.event.stripPrefix("E").toInt).toArray
       }
     }
     val export2 = export.map{case(frameFile, frameData) =>
@@ -111,14 +97,5 @@ case class OCTable(data: Map[OCColumn, Map[OCPatient, String]]) {
         writer.close()
       }
     }
-  }
-
-  /**
-   * Create file and save all values from #order
-   * @param outputDir - output directory
-   * @param order - array of ordered columns to be exported
-   */
-  def exportOrdered(outputDir: String, order: Array[OCColumn]) = {
-
   }
 }

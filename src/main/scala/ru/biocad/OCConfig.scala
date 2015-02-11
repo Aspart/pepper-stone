@@ -8,4 +8,4 @@ package ru.biocad
  * @param in - input folder with *.xls files
  * @param out - output folder
  */
-case class OCConfig(in: String = "", out: String = "")
+case class OCConfig(in: String = "", out: String = "", sort: String = "")

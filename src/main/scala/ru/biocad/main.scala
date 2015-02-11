@@ -23,7 +23,10 @@ object main {
       } text "Input folder"
       opt[String]('o', "out") valueName "<file>" required() action { (x, c) =>
         c.copy(out = x)
-      } text "Output file (or folder if -f specified)"
+      } text "Output folder"
+      opt[String]('s', "sort") valueName "<file>" action { (x, c) =>
+        c.copy(sort = x)
+      } text "File to load patient order from"
       note("some notes.\n")
       help("help") text "prints this usage text"
     }
@@ -47,7 +50,7 @@ object main {
     logger.info(s"Merging frames")
     val merged = ds.merge
     logger.info(s"Writing results to ${config.out}")
-    merged.exportFrameValue(config.out)
+    merged.exportFrameValue(config.out, config.sort)
     logger.info(s"OCM Done")
   }
 }
