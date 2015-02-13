@@ -12,7 +12,8 @@ class OCColumnTest extends FlatSpec with Matchers {
   "OCColumn" should "parse headers in right manner" in {
     val col1 = OCColumn("BDATE_STRANGE_E8_1_C22_3")
     col1.value should be ("BDATE_STRANGE")
-    col1.event should be ("E8_1")
+    col1.event should be ("E8")
+    col1.repeatEvent should be (1)
     col1.frame should be ("C22")
     col1.version should be (3)
     col1.withVer should be("BDATE_STRANGE_3")
@@ -42,13 +43,5 @@ class OCColumnTest extends FlatSpec with Matchers {
     a [ParseException] should be thrownBy {
       OCColumn("BDATE_STRAN!_GE__ffa8_C22_3")
     }
-  }
-
-  it should "compare columns properly" in {
-    OCColumn("A1_E1_C1") should be (OCColumn("A1_E2_C1"))
-  }
-
-  it should "distinct columns" in {
-    Array(OCColumn("A1_E1_C1"), OCColumn("A1_E2_C1"), OCColumn("A2_E1_C1")).distinct should be(Array(OCColumn("A1_E1_C1"), OCColumn("A2_E1_C1")))
   }
 }

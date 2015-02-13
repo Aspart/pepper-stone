@@ -21,10 +21,10 @@ libraryDependencies ++= Seq(
 
 resolvers += Resolver.sonatypeRepo("public")
 
-mainClass in (Compile, run) := Some("ru.biocad")
+mainClass in (Compile, run) := Some("ru.biocad.main")
 
-mainClass in (Compile, packageBin) := Some("ru.biocad")
+mainClass in (Compile, packageBin) := Some("ru.biocad.main")
 
-mainClass in assembly := Some("ru.biocad")
+mainClass in assembly := Some("ru.biocad.main")
 
 assemblySettings

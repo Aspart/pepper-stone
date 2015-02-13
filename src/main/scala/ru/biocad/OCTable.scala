@@ -51,7 +51,7 @@ case class OCTable(data: Map[OCColumn, Map[OCPatient, String]]) {
 
   override def toString: String = {
     val patients = data.values.map(_.keys).reduce(_++_).toList.distinct
-    val cols = data.map{case(col, data) => col.toString +: patients.map(p => data.getOrElse(p, ""))}
+    val cols = data.map{case(col, ds) => col.toString +: patients.map(p => ds.getOrElse(p, ""))}
     val tab = Iterable("Study Subject ID" +: patients.map(_.id)) ++ cols
     val result = tab.transpose.map(_.mkString("\t")).mkString("\n")
     result
@@ -69,7 +69,9 @@ case class OCTable(data: Map[OCColumn, Map[OCPatient, String]]) {
         data.values.map(_.keys).reduce(_ ++ _).toSeq.distinct.sortBy(_.toString).toArray
       }
       else {
-        scala.io.Source.fromInputStream(new FileInputStream(new File(patientOrder))).getLines().map(_.split("\t").take(2)).drop(67).map(OCPatient(_)).toArray
+        val tmp = scala.io.Source.fromInputStream(new FileInputStream(new File(patientOrder))).getLines().map(_.split("\t").take(2)).toArray
+        val idx = tmp.map(_.head).indexWhere(_=="Study Subject ID")
+        tmp.drop(idx).map(OCPatient(_)).toArray
       }
     }
     val frameValues = data.groupBy(_._1.frame).map(x => x._1 -> x._2.groupBy(_._1.withVer))

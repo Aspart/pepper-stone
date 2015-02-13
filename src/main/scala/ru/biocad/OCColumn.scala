@@ -19,8 +19,9 @@ case class OCColumn(value: String, event: String, repeatEvent: Int = 0, frame: S
   def changeEventAndFrame(newEvent: String, newFrame: String) = OCColumn(value, newEvent, repeatEvent, newFrame, version)
 
   def getVersion = if (version != 0) "_" + version.toString else ""
+  def getEventVersion = if (repeatEvent != 0) "_" + repeatEvent.toString else ""
 
-  override def toString = s"${value}_${event}_$frame" + getVersion
+  override def toString = s"${value}_$event${getEventVersion}_$frame" + getVersion
 
   def withVerAndFrame = s"${withVer}_$frame"
 
