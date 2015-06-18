@@ -1,4 +1,7 @@
 from lxml import etree
+import logging
+
+logger = logging.getLogger(__package__)
 
 class ODMWrapper:
     """
@@ -6,11 +9,8 @@ class ODMWrapper:
     :param file_path:
     :return:
     """
-    def __init__(self, file_path):
-        parser = etree.XMLParser()
-        with open(file_path) as fp:
-            tree = etree.parse(fp, parser)
-        self.root = tree.getroot()
+    def __init__(self, root):
+        self.root = root
         self.data = {}
         oc_namespace = self.root.nsmap['OpenClinica']
         for clinical_data in self.root.findall('{*}ClinicalData'):
@@ -137,7 +137,7 @@ class ODMWrapper:
             fp.writelines(lines)
 
 
-def from_file(file_path):
+def wrapper_from_file(file_path):
     parser = etree.XMLParser()
     with open(file_path) as fp:
         tree = etree.parse(fp, parser)
