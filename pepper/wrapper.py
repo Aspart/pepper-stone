@@ -1,5 +1,6 @@
 from lxml import etree
 import logging
+import codecs
 
 logger = logging.getLogger(__package__)
 
@@ -27,15 +28,15 @@ class ODMWrapper:
                                     self.data[key] = [item_data.get('Value')]
                                 else:
                                     self.data[key].append(item_data.get('Value'))
-        self.column_names = self.get_item_descr()
+        self.item_names = self.get_items_descr()
         self.event_names = self.get_events_descr()
 
-    def get_item_descr(self):
+    def get_items_descr(self):
         col_descr = {}
         for study in self.root.findall("{*}Study"):
             for meta in study.findall('{*}MetaDataVersion'):
                 for element in meta.findall('{*}ItemDef'):
-                    col_descr[element.attrib['Name']] = element.attrib['Comment']
+                    col_descr[element.attrib['OID']] = element.attrib['Comment']
         return col_descr
 
     def get_events_descr(self):
@@ -73,16 +74,18 @@ class ODMWrapper:
             events = order
         return events
 
-    def process(self, template):
+    def process(self, template, rename_items=False, rename_events=False):
         """
         Retrive templated matrix from stored ODM data. Deal with it.
         :param template: from template class
+        :param rename_items: rename items to its description
+        :param rename_events: rename events to its description
         :return: sorted matrix
         """
         template.events = self.get_events(template.forms)
         subject_blocks = []
-        event_line = ['']   # empty cell for SubjectID holding
-        item_line = ['']    # empty cell for SubjectID holding
+        event_line = []   # empty cell for SubjectID holding
+        item_line = []    # empty cell for SubjectID holding
         for item_id in template.items:
             for event_id in template.events:
                 item_line.append(item_id)
@@ -121,7 +124,16 @@ class ODMWrapper:
                             coll.append('')
                     subject_block.append(coll)
             subject_blocks.append(subject_block)
-        result = [event_line, item_line]
+
+        result = []
+        if rename_events:
+            result.append([''] + ([self.event_names[x] for x in event_line]))
+        else:
+            result.append([''] + event_line)
+        if rename_items:
+            result.append([''] + [self.item_names[x] for x in item_line])
+        else:
+            result.append([''] + item_line)
         for subject_block in subject_blocks:
             for i in xrange(len(subject_block[0])):
                 row = []
@@ -130,10 +142,10 @@ class ODMWrapper:
                 result.append(row)
         return result
 
-    def process_to_file(self, template, output_file, sep=';'):
-        table = self.process(template)
+    def process_to_file(self, template, output_file, rename_items=False, rename_events=False, sep=';'):
+        table = self.process(template, rename_items, rename_events)
         lines = [sep.join(line)+'\n' for line in table]
-        with open(output_file, 'w') as fp:
+        with codecs.open(output_file, 'w', 'utf-8') as fp:
             fp.writelines(lines)
 
 
