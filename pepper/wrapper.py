@@ -25,9 +25,9 @@ class ODMWrapper:
                             for item_data in item_group_data.findall('{*}ItemData'):
                                 key = (subject_id, event_id, form_id, item_data.get('ItemOID'))
                                 if self.data.get((subject_id, event_id, form_id, item_data.get('ItemOID'))) is None:
-                                    self.data[key] = [item_data.get('Value')]
+                                    self.data[key] = [item_data.get('Value').strip()]
                                 else:
-                                    self.data[key].append(item_data.get('Value'))
+                                    self.data[key].append(item_data.get('Value').strip())
         self.item_names = self.get_items_descr()
         self.event_names = self.get_events_descr()
 
@@ -36,7 +36,7 @@ class ODMWrapper:
         for study in self.root.findall("{*}Study"):
             for meta in study.findall('{*}MetaDataVersion'):
                 for element in meta.findall('{*}ItemDef'):
-                    col_descr[element.attrib['OID']] = element.attrib['Comment']
+                    col_descr[element.attrib['OID']] = element.attrib['Comment'].strip()
         return col_descr
 
     def get_events_descr(self):
@@ -44,7 +44,7 @@ class ODMWrapper:
         for study in self.root.findall("{*}Study"):
             for meta_data_version in study.findall('{*}MetaDataVersion'):
                 for element in meta_data_version.findall('{*}StudyEventDef'):
-                    event_descr[element.attrib['OID']] = element.attrib['Name']
+                    event_descr[element.attrib['OID']] = element.attrib['Name'].strip()
         return event_descr
 
     def get_forms(self):
@@ -52,7 +52,7 @@ class ODMWrapper:
         for study in self.root.findall('{*}Study'):
             for meta_data_version in study.findall('{*}MetaDataVersion'):
                 for item_group_def in meta_data_version.findall('{*}FormDef'):
-                    forms.append(item_group_def.attrib['OID'])
+                    forms.append(item_group_def.attrib['OID'].strip())
         return forms
 
     def get_events(self, forms=None):
@@ -88,8 +88,8 @@ class ODMWrapper:
         item_line = []    # empty cell for SubjectID holding
         for item_id in template.items:
             for event_id in template.events:
-                item_line.append(item_id)
-                event_line.append(event_id)
+                item_line.append(item_id.strip())
+                event_line.append(event_id.strip())
         for subject_id in template.subjects:
             block_lines = 1
             for item_id in template.items:
@@ -127,11 +127,11 @@ class ODMWrapper:
 
         result = []
         if rename_events:
-            result.append([''] + ([self.event_names[x] for x in event_line]))
+            result.append([''] + ([self.event_names[x.replace('\xa0', '')] for x in event_line]))
         else:
             result.append([''] + event_line)
         if rename_items:
-            result.append([''] + [self.item_names[x] for x in item_line])
+            result.append([''] + [self.item_names[x.replace('\xa0', '')] for x in item_line])
         else:
             result.append([''] + item_line)
         for subject_block in subject_blocks:
@@ -150,7 +150,7 @@ class ODMWrapper:
 
 
 def wrapper_from_file(file_path):
-    parser = etree.XMLParser()
-    with open(file_path) as fp:
+    parser = etree.XMLParser(encoding='utf-8')
+    with codecs.open(file_path, 'r', 'utf-8') as fp:
         tree = etree.parse(fp, parser)
     return ODMWrapper(tree.getroot())
