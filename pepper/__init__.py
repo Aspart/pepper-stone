@@ -1,7 +1,7 @@
 import logging
 import os
-from template import template_from_file
-from wrapper import wrapper_from_file
+from .template import template_from_file
+from .wrapper import wrapper_from_file
 
 logger = logging.getLogger(__package__)
 logger.addHandler(logging.FileHandler(__package__+'.log'))

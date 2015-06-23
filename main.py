@@ -15,9 +15,9 @@ def init_parser():
 
 
 def test_workflow():
-    s = (' -i /Users/roman/Projects/Biocad/clinical-pepper-stone/resources/hematology.xml'
-         ' -t /Users/roman/Projects/Biocad/clinical-pepper-stone/resources/hematology.csv'
-         ' -o /Users/roman/Projects/Biocad/clinical-pepper-stone/resources/hematology_results.csv'
+    s = (' -i /Users/roman/Projects/Biocad/clinical-pepper-stone/resources/Concurrent_Therapy.xml'
+         ' -t /Users/roman/Projects/Biocad/clinical-pepper-stone/resources/Concurrent_Therapy.csv'
+         ' -o /Users/roman/Projects/Biocad/clinical-pepper-stone/resources/Concurrent_Therapy_result.csv'
          ' -l debug'
          ' -e')
     sys.argv = [sys.argv[0]] + s.split()

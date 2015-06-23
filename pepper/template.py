@@ -1,5 +1,6 @@
 import os
 import logging
+import codecs
 
 logger = logging.getLogger(__package__)
 
@@ -25,7 +26,7 @@ def template_from_file(path):
         forms_path = os.path.splitext(path)[0] + '.crf'
     else:
         raise ValueError("Cannot find *.crf or *.csv.crf file")
-    with open(path) as fp:
+    with codecs.open(path, 'r', 'utf-8') as fp:
         lines = fp.read().splitlines()
     items = [x for x in lines[0].split(';')][1:]
     subjects = [x.split(';')[0] for x in lines[1:]]

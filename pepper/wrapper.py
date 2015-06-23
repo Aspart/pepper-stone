@@ -98,7 +98,7 @@ class ODMWrapper:
                         replications = self.data.get((subject_id, event_id, form_id, item_id))
                         if replications is not None and len(replications) > block_lines:
                             block_lines = len(replications)
-            subject_block = [[subject_id for _ in xrange(block_lines)]]
+            subject_block = [[subject_id for _ in range(block_lines)]]
             for item_id in template.items:
                 item_status_id = None
                 if item_id.endswith('RES'):
@@ -117,7 +117,7 @@ class ODMWrapper:
                             else:
                                 replications = self.data.get((subject_id, event_id, form_id, item_status_id))
                     rep_count = replications and len(replications) or 0
-                    for idx in xrange(block_lines):
+                    for idx in range(block_lines):
                         if idx < rep_count:
                             coll.append(replications[idx])
                         else:
@@ -135,7 +135,7 @@ class ODMWrapper:
         else:
             result.append([''] + item_line)
         for subject_block in subject_blocks:
-            for i in xrange(len(subject_block[0])):
+            for i in range(len(subject_block[0])):
                 row = []
                 for item in subject_block:
                     row.append(item[i])
