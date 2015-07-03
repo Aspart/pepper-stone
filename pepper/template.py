@@ -13,9 +13,9 @@ class Template:
     Help to export ODM files into reviewable representation.
     """
     def __init__(self, forms, subjects, items):
-        self.subjects = subjects
-        self.forms = forms
-        self.items = items
+        self.subjects = [x.strip() for x in subjects]
+        self.forms = [x.strip() for x in forms]
+        self.items = [x.strip() for x in items]
         self.events = []
 
 
