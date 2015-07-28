@@ -1,4 +1,5 @@
 from lxml import etree
+from .block import Block
 import logging
 import codecs
 
@@ -13,6 +14,7 @@ class ODMWrapper:
     def __init__(self, root):
         self.root = root
         self.data = {}
+        self.groups = {}
         oc_namespace = self.root.nsmap['OpenClinica']
         for clinical_data in self.root.findall('{*}ClinicalData'):
             for subject_data in clinical_data.findall('{*}SubjectData'):
@@ -23,11 +25,22 @@ class ODMWrapper:
                         form_id = form_data.attrib['FormOID']
                         for item_group_data in form_data.findall('{*}ItemGroupData'):
                             for item_data in item_group_data.findall('{*}ItemData'):
-                                key = (subject_id, event_id, form_id, item_data.get('ItemOID'))
-                                if self.data.get((subject_id, event_id, form_id, item_data.get('ItemOID'))) is None:
-                                    self.data[key] = [item_data.get('Value').strip()]
+                                groups = self.groups.get(subject_id)
+                                if groups is None:
+                                    groups = 0
+                                group_id = item_group_data.attrib.get('ItemGroupRepeatKey')
+                                if group_id is None:
+                                    group_id = 1
                                 else:
-                                    self.data[key].append(item_data.get('Value').strip())
+                                    group_id = int(group_id)
+                                if group_id > groups:
+                                    self.groups[subject_id] = group_id
+                                key = (subject_id, event_id, form_id, item_data.get('ItemOID'), group_id)
+                                value = item_data.get('Value').strip()
+                                if self.data.get(key) is None:
+                                    self.data[key] = value
+                                else:
+                                    raise ValueError('Different values for key')
         self.item_names = self.get_items_descr()
         self.event_names = self.get_events_descr()
 
@@ -83,32 +96,42 @@ class ODMWrapper:
         :return: sorted matrix
         """
         template.events = self.get_events(template.forms)
-        subject_blocks = []
-        event_line = []   # empty cell for SubjectID holding
-        item_line = []    # empty cell for SubjectID holding
+        subject_blocks = []     # empty cell for SubjectBlock holding
+        event_line = []         # empty cell for SubjectID holding
+        item_line = []          # empty cell for SubjectID holding
         for item_id in template.items:
             for event_id in template.events:
                 item_line.append(item_id.strip())
                 event_line.append(event_id.strip())
         for subject_id in template.subjects:
-            block_lines = 1
-            for item_id in template.items:
-                for event_id in template.events:
-                    for form_id in template.forms:
-                        replications = self.data.get((subject_id, event_id, form_id, item_id))
-                        if replications is not None and len(replications) > block_lines:
-                            block_lines = len(replications)
-            subject_block = [[subject_id for _ in range(block_lines)]]
+            # block = lines for single patient
+            # num of lines = max from num of repeat events
+            block_lines = self.groups.get(subject_id)
+            subject_block = Block(subject_id, block_lines)
             for item_id in template.items:
                 item_status_id = None
+                # replate empty "%value%RES" with status from "%value%YN"
                 if item_id.endswith('RES'):
-                    item_status_id = item_id[:-3] + 'YN'    # make IGEYN from IGERES
+                    item_status_id = item_id[:-3] + 'YN'    # make %value%YN from %value%RES
                 for event_id in template.events:
                     coll = []
                     replications = None
                     for form_id in template.forms:
                         if replications is None:
-                            replications = self.data.get((subject_id, event_id, form_id, item_id))
+                            # search for value in database
+                            groups = self.groups.get(subject_id)
+                            if groups is None:
+                                groups = 1
+                            rep_buf = []
+                            for group_id in range(1, groups+1):
+                                key = (subject_id, event_id, form_id, item_id, group_id)
+                                val = self.data.get(key)
+                                if val is None:
+                                    rep_buf.append('')
+                                else:
+                                    rep_buf.append(val)
+                            if not all(v == '' for v in rep_buf):
+                                replications = rep_buf
                     if item_status_id is not None:
                         for form_id in template.forms:
                             if replications:
@@ -122,8 +145,8 @@ class ODMWrapper:
                             coll.append(replications[idx])
                         else:
                             coll.append('')
-                    subject_block.append(coll)
-            subject_blocks.append(subject_block)
+                    subject_block.add_column(coll)
+            subject_blocks.append(subject_block.data)
 
         result = []
         if rename_events:

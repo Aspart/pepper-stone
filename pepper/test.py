@@ -13,7 +13,7 @@ def test_workflow_bc():
 
 
 def test_workflow_ae():
-    file_path = '../resources/odm1.3_full AE_033_2015-06-02-.xml'
+    file_path = '../resources/adverse_events.xml'
     template = template_from_file('../resources/adverse_effect.csv')
     wrapper = wrapper_from_file(file_path)
     wrapper.process_to_file(template, '../resources/adverse_effect_results.csv')
