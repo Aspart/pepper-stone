@@ -39,5 +39,5 @@ def main():
     workflow(args.input, args.template, args.output)
 
 if __name__ == '__main__':
-    test_workflow()
+    main()
 
