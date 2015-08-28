@@ -12,11 +12,12 @@ class Template:
     form_id - form_id
     Help to export ODM files into reviewable representation.
     """
-    def __init__(self, forms, subjects, items):
+    def __init__(self, forms, subjects, items, merge):
         self.subjects = [x.strip() for x in subjects]
         self.forms = [x.strip() for x in forms]
         self.items = [x.strip() for x in items]
         self.events = []
+        self.merge = merge
 
 
 def template_from_file(path):
@@ -28,11 +29,20 @@ def template_from_file(path):
         raise ValueError("Cannot find *.crf or *.csv.crf file")
     with codecs.open(path, 'r', 'utf-8') as fp:
         lines = fp.read().splitlines()
-    items = [x for x in lines[0].split(';')][1:]
-    subjects = [x.split(';')[0] for x in lines[1:]]
+    table = [line.split(';') for line in lines]
+    items = table[0][1:]
+    subjects = [x[0] for x in table[1:]]
+    replications = [x[1:] for x in table[1:]]
+    merge = {}
+    for idx, val in enumerate(items):
+        reps = [val]
+        for r in replications:
+            if r[idx] != '':
+                reps.append(r[idx])
+        merge[val] = reps
     with open(forms_path) as fp:
         forms = fp.read().splitlines()
         if forms[0] != 'FormOID':
             raise ValueError("crf file should begin from FormOID definition")
         forms = forms[1:]
-    return Template(forms, subjects, items)
+    return Template(forms, subjects, items, merge)

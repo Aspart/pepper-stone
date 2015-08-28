@@ -2,3 +2,6 @@ target/
 .idea
 .pyc
 *.pyc
+*.log
+*venv/
+*resources/*_results.csv

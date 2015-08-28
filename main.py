@@ -1,4 +1,3 @@
-import sys
 import logging
 from argparse import ArgumentParser
 from pepper import workflow
@@ -12,18 +11,6 @@ def init_parser():
     parser.add_argument('--eventrename', '-er', help='rename event to description', default=False, action='store_true')
     parser.add_argument('--loglevel', '-l', help='logging level', default='error', choices=['info', 'debug', 'error'])
     return parser
-
-
-def test_workflow():
-    s = (' -i /Users/roman/Projects/Biocad/clinical-pepper-stone/resources/CT.xml'
-         ' -t /Users/roman/Projects/Biocad/clinical-pepper-stone/resources/CT.csv'
-         ' -o /Users/roman/Projects/Biocad/clinical-pepper-stone/resources/CT_results.csv'
-         ' -l debug')
-    sys.argv = [sys.argv[0]] + s.split()
-    parser = init_parser()
-    args = parser.parse_args()
-    setup_logger(args)
-    workflow(args.input, args.template, args.output, args.itemrename, args.eventrename)
 
 
 def setup_logger(args):

@@ -106,7 +106,9 @@ class ODMWrapper:
         for subject_id in template.subjects:
             # block = lines for single patient
             # num of lines = max from num of repeat events
-            block_lines = self.groups.get(subject_id)
+            block_lines = self.groups.get(subject_id, 1)
+            if block_lines is None:
+                logger.error("Subject from template not found in data: %s" % subject_id)
             subject_block = Block(subject_id, block_lines)
             for item_id in template.items:
                 item_status_id = None
@@ -124,12 +126,11 @@ class ODMWrapper:
                                 groups = 1
                             rep_buf = []
                             for group_id in range(1, groups+1):
-                                key = (subject_id, event_id, form_id, item_id, group_id)
-                                val = self.data.get(key)
-                                if val is None:
-                                    rep_buf.append('')
-                                else:
-                                    rep_buf.append(val)
+                                val = ""
+                                for val_merge in template.merge[item_id]:
+                                    if val == "":
+                                        val = self.data.get((subject_id, event_id, form_id, val_merge, group_id), "")
+                                rep_buf.append(val)
                             if not all(v == '' for v in rep_buf):
                                 replications = rep_buf
                     if item_status_id is not None:
