@@ -5,3 +5,4 @@ target/
 *.log
 *venv/
 *resources/*_results.csv
+*tmp/

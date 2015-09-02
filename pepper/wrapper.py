@@ -1,9 +1,11 @@
+import logging
+
 from lxml import etree
 from .block import Block
-import logging
 import codecs
 
 logger = logging.getLogger(__package__)
+
 
 class ODMWrapper:
     """
@@ -11,6 +13,7 @@ class ODMWrapper:
     :param file_path:
     :return:
     """
+
     def __init__(self, root):
         self.root = root
         self.data = {}
@@ -40,7 +43,11 @@ class ODMWrapper:
                                 if self.data.get(key) is None:
                                     self.data[key] = value
                                 else:
-                                    raise ValueError('Different values for key')
+                                    value_previous = self.data.get(key)
+                                    error = 'Different values for key %s: %s and %s' % (
+                                    ",".join([str(x) for x in key]), value_previous, value)
+                                    logger.error(error)
+                                    raise ValueError(error)
         self.item_names = self.get_items_descr()
         self.event_names = self.get_events_descr()
 
@@ -96,9 +103,9 @@ class ODMWrapper:
         :return: sorted matrix
         """
         template.events = self.get_events(template.forms)
-        subject_blocks = []     # empty cell for SubjectBlock holding
-        event_line = []         # empty cell for SubjectID holding
-        item_line = []          # empty cell for SubjectID holding
+        subject_blocks = []  # empty cell for SubjectBlock holding
+        event_line = []  # empty cell for SubjectID holding
+        item_line = []  # empty cell for SubjectID holding
         for item_id in template.items:
             for event_id in template.events:
                 item_line.append(item_id.strip())
@@ -114,7 +121,7 @@ class ODMWrapper:
                 item_status_id = None
                 # replate empty "%value%RES" with status from "%value%YN"
                 if item_id.endswith('RES'):
-                    item_status_id = item_id[:-3] + 'YN'    # make %value%YN from %value%RES
+                    item_status_id = item_id[:-3] + 'YN'  # make %value%YN from %value%RES
                 for event_id in template.events:
                     coll = []
                     replications = None
@@ -125,7 +132,7 @@ class ODMWrapper:
                             if groups is None:
                                 groups = 1
                             rep_buf = []
-                            for group_id in range(1, groups+1):
+                            for group_id in range(1, groups + 1):
                                 val = ""
                                 for val_merge in template.merge[item_id]:
                                     if val == "":
@@ -168,7 +175,7 @@ class ODMWrapper:
 
     def process_to_file(self, template, output_file, rename_items=False, rename_events=False, sep=';'):
         table = self.process(template, rename_items, rename_events)
-        lines = [sep.join(line)+'\n' for line in table]
+        lines = [sep.join(line) + '\n' for line in table]
         with codecs.open(output_file, 'w', 'utf-8') as fp:
             fp.writelines(lines)
 

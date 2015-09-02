@@ -1,8 +1,10 @@
-import os
 import logging
+
+import os
 import codecs
 
 logger = logging.getLogger(__package__)
+
 
 class Template:
     """
@@ -12,6 +14,7 @@ class Template:
     form_id - form_id
     Help to export ODM files into reviewable representation.
     """
+
     def __init__(self, forms, subjects, items, merge):
         self.subjects = [x.strip() for x in subjects]
         self.forms = [x.strip() for x in forms]
@@ -26,7 +29,9 @@ def template_from_file(path):
     elif os.path.isfile(os.path.splitext(path)[0] + '.crf'):
         forms_path = os.path.splitext(path)[0] + '.crf'
     else:
-        raise ValueError("Cannot find *.crf or *.csv.crf file")
+        error = "Cannot find %s or %s file" % (path + '.crf', os.path.splitext(path)[0] + '.crf')
+        logger.error(error)
+        raise IOError(error)
     with codecs.open(path, 'r', 'utf-8') as fp:
         lines = fp.read().splitlines()
     table = [line.split(';') for line in lines]
@@ -43,6 +48,8 @@ def template_from_file(path):
     with open(forms_path) as fp:
         forms = fp.read().splitlines()
         if forms[0] != 'FormOID':
-            raise ValueError("crf file should begin from FormOID definition")
+            error = "crf file should begin from FormOID definition"
+            logger.error(error)
+            raise IOError(error)
         forms = forms[1:]
     return Template(forms, subjects, items, merge)
