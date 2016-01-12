@@ -39,7 +39,7 @@ class ODMWrapper:
                                 if group_id > groups:
                                     self.groups[subject_id] = group_id
                                 key = (subject_id, event_id, form_id, item_data.get('ItemOID'), group_id)
-                                value = item_data.get('Value').strip()
+                                value = item_data.get('Value', "").strip()
                                 if self.data.get(key) is None:
                                     self.data[key] = value
                                 else:
